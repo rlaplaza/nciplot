@@ -1729,3 +1729,111 @@ correlation matrix of the fit parameters:
                 m1     n1     
 m1              1.000 
 n1             -0.751  1.000 
+
+
+*******************************************************************************
+Fri Oct  2 21:43:31 2020
+
+
+FIT:    data read from 'correlation.dat' u (-1*$2):3
+        format = x:z
+        #datapoints = 4
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f1(x)
+	f1(x) = m1*x + n1
+fitted parameters initialized with current variable values
+
+iter      chisq       delta/lim  lambda   m1            n1           
+   0 4.5198271314e+02   0.00e+00  7.02e+00    1.000000e+00   1.000000e+00
+   5 1.1961382156e-05  -3.62e-06  7.02e-05    1.366695e-03  -4.461351e-04
+
+After 5 iterations the fit converged.
+final sum of squares of residuals : 1.19614e-05
+rel. change during last iteration : -3.62025e-11
+
+degrees of freedom    (FIT_NDF)                        : 2
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 0.00244555
+variance of residuals (reduced chisquare) = WSSR/ndf   : 5.98069e-06
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+m1              = 0.0013667        +/- 0.0001876    (13.72%)
+n1              = -0.000446135     +/- 0.001851     (415%)
+
+correlation matrix of the fit parameters:
+                m1     n1     
+m1              1.000 
+n1             -0.751  1.000 
+
+
+*******************************************************************************
+Sat Oct  3 00:10:20 2020
+
+
+FIT:    data read from 'correlation.dat' u (-1*$2):3
+        format = x:z
+        #datapoints = 4
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f1(x)
+	f1(x) = m1*x + n1
+fitted parameters initialized with current variable values
+
+iter      chisq       delta/lim  lambda   m1            n1           
+   0 4.5198271314e+02   0.00e+00  7.02e+00    1.000000e+00   1.000000e+00
+   5 1.1961382156e-05  -3.62e-06  7.02e-05    1.366695e-03  -4.461351e-04
+
+After 5 iterations the fit converged.
+final sum of squares of residuals : 1.19614e-05
+rel. change during last iteration : -3.62025e-11
+
+degrees of freedom    (FIT_NDF)                        : 2
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 0.00244555
+variance of residuals (reduced chisquare) = WSSR/ndf   : 5.98069e-06
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+m1              = 0.0013667        +/- 0.0001876    (13.72%)
+n1              = -0.000446135     +/- 0.001851     (415%)
+
+correlation matrix of the fit parameters:
+                m1     n1     
+m1              1.000 
+n1             -0.751  1.000 
+
+
+*******************************************************************************
+Sat Oct  3 14:59:12 2020
+
+
+FIT:    data read from 'correlation.dat' u (-1*$2):3
+        format = x:z
+        #datapoints = 4
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f1(x)
+	f1(x) = m1*x + n1
+fitted parameters initialized with current variable values
+
+iter      chisq       delta/lim  lambda   m1            n1           
+   0 4.5198271314e+02   0.00e+00  7.02e+00    1.000000e+00   1.000000e+00
+   5 1.1961382156e-05  -3.62e-06  7.02e-05    1.366695e-03  -4.461351e-04
+
+After 5 iterations the fit converged.
+final sum of squares of residuals : 1.19614e-05
+rel. change during last iteration : -3.62025e-11
+
+degrees of freedom    (FIT_NDF)                        : 2
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 0.00244555
+variance of residuals (reduced chisquare) = WSSR/ndf   : 5.98069e-06
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+m1              = 0.0013667        +/- 0.0001876    (13.72%)
+n1              = -0.000446135     +/- 0.001851     (415%)
+
+correlation matrix of the fit parameters:
+                m1     n1     
+m1              1.000 
+n1             -0.751  1.000 

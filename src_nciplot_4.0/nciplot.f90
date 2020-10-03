@@ -74,7 +74,7 @@ program nciplot
    ! chk file
    real*8 :: xinc_init(3)
    ! Modification
-   logical ::  dointeg
+   logical ::  dointeg, pprint
    ! Atcube
    integer :: natommax, igroup, natom
    integer, allocatable, dimension(:, :) :: group
@@ -214,6 +214,7 @@ program nciplot
    rthres = 0.75d0/bohrtoa     ! box limits around the molecule
    dointeg = .false.  ! integrating properties or not
    dorange = .false.  ! do not integrate range
+   pprint = .false.   ! print cube and dat before integration
    firstgrid = .true. ! flag for the first adaptive grid run
    if (.not. allocated(fginc)) then ! default setting CG2FG 3 4 2 1
       ng = 4
@@ -261,6 +262,7 @@ program nciplot
    ! - FINE
    ! - ULTRAFINE
    ! - COARSE
+   ! - POSTPRINT
    !===============================================================================!
    do while (.true.)
       read (uin, '(a)', end=11) line
@@ -467,13 +469,16 @@ program nciplot
                do j = 1, 2
                   if (abs(srhorange(i, j)) .lt. 1d-30) then
                      srhorange(i, j) = srhorange(i, j) + 1d-30
-                  endif
+                  end if
                enddo
             enddo
-         endif
+         end if
 
       case ("INTEGRATE")  ! integration
          dointeg = .true.              ! integrate
+
+      case ("POSTPRINT") !print info after processing 
+         pprint = .true.
 
       case default ! something else is read
          call error('nciplot', 'Don''t know what to do with '//trim(word)//' keyword', faterr)
@@ -528,7 +533,7 @@ program nciplot
       open (lugc, file=trim(oname)//"-grad.cube")    ! RDG cube file
       open (ludc, file=trim(oname)//"-dens.cube")    ! Density cube file
       open (luvmd, file=trim(oname)//".vmd")         ! VMD script
-   endif
+   end if
 
    if (noutput == 1 .or. noutput == 3) then
       ludat = 16
@@ -825,41 +830,38 @@ program nciplot
    end if
 
    !===============================================================================!
-   ! Write .dat file.
+   ! Write .dat and cube files.
    !===============================================================================!
-   do k = 0, nstep(3) - 1
-      do j = 0, nstep(2) - 1
-         do i = 0, nstep(1) - 1
-            ! fragments for the wfn case
-            intra = (cgrad(i, j, k) < 0d0)
-            cgrad(i, j, k) = abs(cgrad(i, j, k))
-            dimgrad = cgrad(i, j, k)
-            rho = crho(i, j, k)/100d0
-            ! write the dat file
-            if (ludat > 0 .and. .not. intra .and. (abs(rho) < rhocut) .and. (dimgrad < dimcut) .and. &
-                abs(rho) > 1d-30) then
-               write (ludat, '(1p,E18.10,E18.10)') rho, dimgrad
-            endif ! rhocut/dimcut
+   if (.not. pprint) then
+      do k = 0, nstep(3) - 1
+         do j = 0, nstep(2) - 1
+            do i = 0, nstep(1) - 1
+               ! fragments for the wfn case
+               intra = (cgrad(i, j, k) < 0d0)
+               !cgrad(i, j, k) = abs(cgrad(i, j, k))
+               dimgrad = abs(cgrad(i, j, k))
+               rho = crho(i, j, k)/100d0
+               ! write the dat file
+               if (ludat > 0 .and. .not. intra .and. (abs(rho) < rhocut) .and. (dimgrad < dimcut) .and. &
+                   abs(rho) > 1d-30) then
+                  write (ludat, '(1p,E18.10,E18.10)') rho, dimgrad
+               endif ! rhocut/dimcut
 
-            ! prepare the cube files
-            if ((abs(rho) > rhoplot) .or. (dimgrad > dimcut)) then
-               cgrad(i, j, k) = 100d0
-            endif !rho cutoff
-            if  (intra) then ! intermolecular points also to 100
-               cgrad(i, j, k) = 100d0
-            endif
+               ! prepare the cube files
+               if ((abs(rho) > rhoplot) .or. (dimgrad > dimcut)) then
+                  cgrad(i, j, k) = 100d0
+               endif !rho cutoff
+               if  (intra) then ! intermolecular points also to 100
+                  cgrad(i, j, k) = 100d0
+               endif
+            end do
          end do
       end do
-   end do
-
-   !===============================================================================!
-   ! Write cube files.
-   !===============================================================================!
-   if (ludc > 0) call write_cube_body(ludc, nstep, crho)          ! density
-   if (lugc > 0) call write_cube_body(lugc, nstep, cgrad)         ! RDG
-
-   call system_clock(count=c4)
-   write (*, "(A, F6.2, A)") ' Time for writing outputs = ', real(dble(c4 - c3)/dble(cr), kind=8), ' secs'
+      if (ludc > 0) call write_cube_body(ludc, nstep, crho)          ! density
+      if (lugc > 0) call write_cube_body(lugc, nstep, cgrad)         ! RDG
+      call system_clock(count=c4)
+      write (*, "(A, F6.2, A)") ' Time for writing outputs = ', real(dble(c4 - c3)/dble(cr), kind=8), ' secs'
+   end if
 
    !===============================================================================!
    ! Integration for promolecular systems. Box removal.
@@ -914,9 +916,9 @@ program nciplot
                   if (((dimgrad > dimcut) .and. .not. rmbox_coarse(i, j, k))) then
                      rmbox_coarse(i, j, k) = .true. !inactive
                   endif ! rhocut/dimcut
-               enddo  !k = 0,nstep(3)-1
-            enddo !j = 0,nstep(2)-1
-         enddo  !i = 0,nstep(1)-1
+               enddo  !k = 0,nstep(3)-2
+            enddo !j = 0,nstep(2)-2
+         enddo  !i = 0,nstep(1)-2
          percent = real(count(rmbox_coarse), kind=8)/(real(size(rmbox_coarse), kind=8))*100d0
          write (*, '(F6.2, A)') percent, '% of small boxes removed for density integration'
       endif !not ispromol
@@ -925,7 +927,7 @@ program nciplot
    !===============================================================================!
    ! Integration and printing, uses the defined rmbox_coarse.
    !===============================================================================!
-   ! compute geometry date in the region enclosed by the RDG isosurface:
+   ! compute geometry data in the region enclosed by the RDG isosurface:
    ! integral of rho^n (n = 1, 1.5, 2, 2.5, 3, 4/3, 5/3, 0) and rho1*rho2, respectively over the volume and the surface: sum_rhon_vol, sum_rhon_area
    if (dointeg) then
       call dataGeom(sum_rhon_vol, sum_rhon_area, sum_signrhon_vol, xinc, nstep, crho, crho_n, rmbox_coarse, nfiles)
@@ -983,6 +985,40 @@ program nciplot
       enddo
    endif
    call system_clock(count=c6)
+
+
+   !===============================================================================!
+   ! Write .dat and cube files if pprint is set.
+   !===============================================================================!
+   if (pprint) then
+      do k = 0, nstep(3) - 2
+         do j = 0, nstep(2) - 2
+            do i = 0, nstep(1) - 2
+               ! fragments for the wfn case
+               intra = (cgrad(i, j, k) < 0d0)
+               !cgrad(i, j, k) = abs(cgrad(i, j, k))
+               dimgrad = abs(cgrad(i, j, k))
+               rho = crho(i, j, k)/100d0
+               ! write the dat file
+               if (( ludat > 0 ) .and. .not. intra .and. (abs(rho) < rhocut) .and. (dimgrad < dimcut) .and. &
+                   (abs(rho) > 1d-30) .and. .not. (rmbox_coarse(i, j, k) ))  then
+                  write (ludat, '(1p,E18.10,E18.10)') rho, dimgrad
+               endif ! rhocut/dimcut
+               ! prepare the cube files
+               if ((abs(rho) > rhoplot) .or. (dimgrad > dimcut) .or. (rmbox_coarse(i, j, k) )) then
+                  cgrad(i, j, k) = 100d0
+               endif !rho cutoff
+               if  (intra) then ! intermolecular points also to 100
+                  cgrad(i, j, k) = 100d0
+               endif
+            end do
+         end do
+      end do
+      if (ludc > 0) call write_cube_body(ludc, nstep, crho)          ! density
+      if (lugc > 0) call write_cube_body(lugc, nstep, cgrad)         ! RDG
+      call system_clock(count=c4)
+      write (*, "(A, F6.2, A)") ' Time for writing outputs = ', real(dble(c4 - c3)/dble(cr), kind=8), ' secs'
+   end if
 
    !===============================================================================!
    ! Deallocate grids.
