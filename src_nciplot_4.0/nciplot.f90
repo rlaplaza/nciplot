@@ -467,8 +467,8 @@ program nciplot
             do i = 1, nranges
                read (uin, *) srhorange(i, :)
                do j = 1, 2
-                  if (abs(srhorange(i, j)) .lt. 1d-30) then
-                     srhorange(i, j) = srhorange(i, j) + 1d-30
+                  if (abs(srhorange(i, j)) .lt. 1d-20) then
+                     srhorange(i, j) = srhorange(i, j) + 1d-20
                   end if
                enddo
             enddo
@@ -662,7 +662,7 @@ program nciplot
                call calcprops_pro(x, m, nfiles, rho, rho_n, rhom(1:nfrag), nfrag, autofrag, &
                                   grad, hess, deltag)
                call rs(3, 3, hess, heigs, 0, hvecs, wk1, wk2, istat)
-               rho = max(rho, 1d-30)
+               rho = max(rho, 1d-20)
                grad2 = dot_product(grad, grad)
                dimgrad = sqrt(grad2)/(const*rho**(4.D0/3.D0))
                intra = inter .and. ((any(rhom(1:nfrag) >= sum(rhom(1:nfrag))*rhoparam)) .or. &
@@ -843,7 +843,7 @@ program nciplot
                rho = crho(i, j, k)/100d0
                ! write the dat file
                if (ludat > 0 .and. .not. intra .and. (abs(rho) < rhocut) .and. (dimgrad < dimcut) .and. &
-                   abs(rho) > 1d-30) then
+                   abs(rho) > 1d-20) then
                   write (ludat, '(1p,E18.10,E18.10)') rho, dimgrad
                endif ! rhocut/dimcut
 
@@ -859,7 +859,9 @@ program nciplot
       end do
       if (ludc > 0) call write_cube_body(ludc, nstep, crho)          ! density
       if (lugc > 0) call write_cube_body(lugc, nstep, cgrad)         ! RDG
-      call system_clock(count=c4)
+   end if
+   call system_clock(count=c4)
+   if (.not. pprint) then 
       write (*, "(A, F6.2, A)") ' Time for writing outputs = ', real(dble(c4 - c3)/dble(cr), kind=8), ' secs'
    end if
 
@@ -877,7 +879,7 @@ program nciplot
                   call calcprops_pro(x, m, nfiles, rho, rho_n, rhom(1:nfrag), nfrag, autofrag, &
                                      grad, hess, deltag)
                   call rs(3, 3, hess, heigs, 0, hvecs, wk1, wk2, istat)
-                  rho = max(rho, 1d-30)
+                  rho = max(rho, 1d-20)
                   grad2 = dot_product(grad, grad)
                   dimgrad = sqrt(grad2)/(const*rho**(4.D0/3.D0))
                   if (inter) then
@@ -1001,7 +1003,7 @@ program nciplot
                rho = crho(i, j, k)/100d0
                ! write the dat file
                if (( ludat > 0 ) .and. .not. intra .and. (abs(rho) < rhocut) .and. (dimgrad < dimcut) .and. &
-                   (abs(rho) > 1d-30) .and. .not. (rmbox_coarse(i, j, k) ))  then
+                   (abs(rho) > 1d-20) .and. .not. (rmbox_coarse(i, j, k) ))  then
                   write (ludat, '(1p,E18.10,E18.10)') rho, dimgrad
                endif ! rhocut/dimcut
                ! prepare the cube files
@@ -1016,8 +1018,8 @@ program nciplot
       end do
       if (ludc > 0) call write_cube_body(ludc, nstep, crho)          ! density
       if (lugc > 0) call write_cube_body(lugc, nstep, cgrad)         ! RDG
-      call system_clock(count=c4)
-      write (*, "(A, F6.2, A)") ' Time for writing outputs = ', real(dble(c4 - c3)/dble(cr), kind=8), ' secs'
+      call system_clock(count=c6)
+      write (*, "(A, F6.2, A)") ' Time for writing outputs = ', real(dble(c6 - c5)/dble(cr), kind=8), ' secs'
    end if
 
    !===============================================================================!
