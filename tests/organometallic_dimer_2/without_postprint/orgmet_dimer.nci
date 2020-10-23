@@ -1,0 +1,14 @@
+2
+bipy-H_NMe2-TSmeta2d_F1.wfx
+bipy-H_NMe2-TSmeta2d_F2.wfx
+COARSE
+CG2FG 4 12 8 4 1
+INCREMENTS 0.1 0.1 0.1
+OUTPUT 3
+INTERMOLECULAR
+INTEGRATE
+RANGE 3
+-0.1 -0.02
+-0.02 0.02
+0.02 0.1
+ONAME orgmet_dimer

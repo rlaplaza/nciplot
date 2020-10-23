@@ -477,7 +477,7 @@ program nciplot
       case ("INTEGRATE")  ! integration
          dointeg = .true.              ! integrate
 
-      case ("POSTPRINT") !print info after processing 
+      case ("POSTPRINT") !print info after processing
          pprint = .true.
 
       case default ! something else is read
@@ -754,9 +754,9 @@ program nciplot
                            end do
                         end do
                      end do
-                     rho = crho(i,j,k)
+                     rho = crho(i, j, k)
                      intra = inter .and. (any(abs(crho_n(i, j, k, 1:nfrag))*100d0 >= abs(crho(i, j, k))*rhoparam) .or. &
-                                    (sum(abs(crho_n(i, j, k, 1:nfrag))*100d0) < rhoparam2*abs(rho)))
+                                          (sum(abs(crho_n(i, j, k, 1:nfrag))*100d0) < rhoparam2*abs(rho)))
                      if (intra) then !checks for interatomic
                         cgrad(i, j, k) = -cgrad(i, j, k)
                      end if
@@ -832,36 +832,35 @@ program nciplot
    !===============================================================================!
    ! Write .dat and cube files.
    !===============================================================================!
-   if (.not. pprint) then
-      do k = 0, nstep(3) - 1
-         do j = 0, nstep(2) - 1
-            do i = 0, nstep(1) - 1
-               ! fragments for the wfn case
-               intra = (cgrad(i, j, k) < 0d0)
-               !cgrad(i, j, k) = abs(cgrad(i, j, k))
-               dimgrad = abs(cgrad(i, j, k))
-               rho = crho(i, j, k)/100d0
+   do k = 0, nstep(3) - 1
+      do j = 0, nstep(2) - 1
+         do i = 0, nstep(1) - 1
+            ! fragments for the wfn case
+            intra = (cgrad(i, j, k) < 0d0)
+            !cgrad(i, j, k) = abs(cgrad(i, j, k))
+            dimgrad = abs(cgrad(i, j, k))
+            rho = crho(i, j, k)/100d0
+            if (.not. pprint) then
                ! write the dat file
                if (ludat > 0 .and. .not. intra .and. (abs(rho) < rhocut) .and. (dimgrad < dimcut) .and. &
                    abs(rho) > 1d-20) then
                   write (ludat, '(1p,E18.10,E18.10)') rho, dimgrad
                endif ! rhocut/dimcut
-
-               ! prepare the cube files
-               if ((abs(rho) > rhoplot) .or. (dimgrad > dimcut)) then
-                  cgrad(i, j, k) = 100d0
-               endif !rho cutoff
-               if  (intra) then ! intermolecular points also to 100
-                  cgrad(i, j, k) = 100d0
-               endif
-            end do
+            endif
+            ! prepare the cube files
+            if ((abs(rho) > rhoplot) .or. (dimgrad > dimcut)) then
+               cgrad(i, j, k) = 100d0
+            endif !rho cutoff
+            if (intra) then ! intermolecular points also to 100
+               cgrad(i, j, k) = 100d0
+            endif
          end do
       end do
+   end do
+   call system_clock(count=c4)
+   if (.not. pprint) then
       if (ludc > 0) call write_cube_body(ludc, nstep, crho)          ! density
       if (lugc > 0) call write_cube_body(lugc, nstep, cgrad)         ! RDG
-   end if
-   call system_clock(count=c4)
-   if (.not. pprint) then 
       write (*, "(A, F6.2, A)") ' Time for writing outputs = ', real(dble(c4 - c3)/dble(cr), kind=8), ' secs'
    end if
 
@@ -988,7 +987,6 @@ program nciplot
    endif
    call system_clock(count=c6)
 
-
    !===============================================================================!
    ! Write .dat and cube files if pprint is set.
    !===============================================================================!
@@ -1002,15 +1000,15 @@ program nciplot
                dimgrad = abs(cgrad(i, j, k))
                rho = crho(i, j, k)/100d0
                ! write the dat file
-               if (( ludat > 0 ) .and. .not. intra .and. (abs(rho) < rhocut) .and. (dimgrad < dimcut) .and. &
-                   (abs(rho) > 1d-20) .and. .not. (rmbox_coarse(i, j, k) ))  then
+               if ((ludat > 0) .and. .not. intra .and. (abs(rho) < rhocut) .and. (dimgrad < dimcut) .and. &
+                   (abs(rho) > 1d-20) .and. .not. (rmbox_coarse(i, j, k))) then
                   write (ludat, '(1p,E18.10,E18.10)') rho, dimgrad
                endif ! rhocut/dimcut
                ! prepare the cube files
-               if ((abs(rho) > rhoplot) .or. (dimgrad > dimcut) .or. (rmbox_coarse(i, j, k) )) then
+               if ((abs(rho) > rhoplot) .or. (dimgrad > dimcut) .or. (rmbox_coarse(i, j, k))) then
                   cgrad(i, j, k) = 100d0
                endif !rho cutoff
-               if  (intra) then ! intermolecular points also to 100
+               if (intra) then ! intermolecular points also to 100
                   cgrad(i, j, k) = 100d0
                endif
             end do
